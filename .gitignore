@@ -1,0 +1,22 @@
+﻿# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment — NUNCA subir al repo
+.env.local
+.env.*.local
+.env
+
+# Editor & OS
+.DS_Store
+*.log
+.vscode/
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log

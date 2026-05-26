@@ -1,0 +1,75 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isTenantMember(tenantId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantIds.hasAny([tenantId]);
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isAdminOrManager() {
+      return hasRole('ADMIN') || hasRole('MANAGER');
+    }
+
+    // Users — solo puede leer/editar su propio perfil
+    match /users/{userId} {
+      allow read:   if isAuthenticated();
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId || hasRole('ADMIN');
+      allow delete: if hasRole('ADMIN');
+    }
+
+    // Tenants
+    match /tenants/{tenantId} {
+      allow read:   if isTenantMember(tenantId);
+      allow write:  if hasRole('ADMIN');
+
+      // Requirements dentro del tenant
+      match /requirements/{reqId} {
+        allow read:   if isTenantMember(tenantId);
+        allow create: if isTenantMember(tenantId) && isAdminOrManager();
+        allow update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
+        allow delete: if isTenantMember(tenantId) && hasRole('ADMIN');
+
+        match /tasks/{taskId} {
+          allow read, write: if isTenantMember(tenantId);
+        }
+        match /notes/{noteId} {
+          allow read:   if isTenantMember(tenantId);
+          allow create: if isTenantMember(tenantId);
+          allow update, delete: if request.auth.uid == resource.data.authorId || hasRole('ADMIN');
+        }
+        match /activity/{actId} {
+          allow read:   if isTenantMember(tenantId);
+          allow create: if isTenantMember(tenantId);
+          allow update, delete: if false; // Log inmutable
+        }
+      }
+
+      // Projects
+      match /projects/{projectId} {
+        allow read:   if isTenantMember(tenantId);
+        allow create: if isTenantMember(tenantId) && isAdminOrManager();
+        allow update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
+        allow delete: if isTenantMember(tenantId) && hasRole('ADMIN');
+      }
+    }
+
+    // Notifications — solo el dueño
+    match /notifications/{notifId} {
+      allow read, update: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+  }
+}
