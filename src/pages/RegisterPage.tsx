@@ -41,11 +41,9 @@ export default function RegisterPage() {
       <div style={{ position:"absolute", inset:0, backgroundImage:"radial-gradient(#d3e4fe 0.8px, transparent 0.8px)", backgroundSize:"32px 32px", opacity:0.6, pointerEvents:"none" }} />
       <div style={{ position:"relative", width:"100%", maxWidth:448 }} className="animate-slide-up">
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:56, height:56, background:"var(--color-unit-navy)", borderRadius:16, marginBottom:16 }}>
-            <span className="material-symbols-outlined" style={{ color:"white", fontSize:28 }}>shield_with_heart</span>
-          </div>
+          <img src="/logo-unit.png" alt="UNIT S.A." style={{ height:64, width:"auto", marginBottom:16, objectFit:"contain" }} />
           <h1 className="text-headline-md">Crear cuenta</h1>
-          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>InsurTech Pro - UNIT S.A.</p>
+          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>Hub de Requerimientos · UNIT S.A.</p>
         </div>
         <div className="glass-card" style={{ padding:32, boxShadow:"0 16px 48px rgba(15,23,42,0.12)" }}>
           {error && (

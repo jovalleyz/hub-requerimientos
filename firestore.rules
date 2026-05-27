@@ -1,4 +1,4 @@
-﻿rules_version = '2';
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -21,12 +21,25 @@ service cloud.firestore {
       return hasRole('ADMIN') || hasRole('MANAGER');
     }
 
-    // Users — solo puede leer/editar su propio perfil
+    // Users — readable only to users who share at least one tenant (or themselves)
     match /users/{userId} {
-      allow read:   if isAuthenticated();
+      allow read: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantIds.hasAny(resource.data.tenantIds)
+      );
       allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId || hasRole('ADMIN');
+      // Self-update is allowed BUT must not change the role field —
+      // role changes are ADMIN-only to prevent privilege escalation.
+      allow update: if (request.auth.uid == userId && !("role" in request.resource.data.diff(resource.data).affectedKeys()))
+                    || hasRole('ADMIN');
       allow delete: if hasRole('ADMIN');
+
+      // Notifications subcollection (path: /users/{userId}/notifications/{notifId})
+      match /notifications/{notifId} {
+        allow read, update: if isAuthenticated() && request.auth.uid == userId;
+        allow create:       if isAuthenticated();
+        allow delete:       if isAuthenticated() && request.auth.uid == userId;
+      }
     }
 
     // Tenants
@@ -54,6 +67,12 @@ service cloud.firestore {
           allow create: if isTenantMember(tenantId);
           allow update, delete: if false; // Log inmutable
         }
+
+        match /documents/{docId} {
+          allow read:          if isTenantMember(tenantId);
+          allow create, update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
+          allow delete:        if isTenantMember(tenantId) && isAdminOrManager();
+        }
       }
 
       // Projects
@@ -62,6 +81,13 @@ service cloud.firestore {
         allow create: if isTenantMember(tenantId) && isAdminOrManager();
         allow update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
         allow delete: if isTenantMember(tenantId) && hasRole('ADMIN');
+      }
+
+      // Audit log — append-only for tenant members, read for admin/manager
+      match /audit/{auditId} {
+        allow read:   if isTenantMember(tenantId) && isAdminOrManager();
+        allow create: if isTenantMember(tenantId);
+        allow update, delete: if false; // Immutable
       }
     }
 

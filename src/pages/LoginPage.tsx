@@ -23,14 +23,22 @@ export default function LoginPage() {
   async function onSubmit(data: FormData) {
     setLoading(true); setError("")
     try { await login(data.email, data.password); navigate("/dashboard", { replace: true }) }
-    catch { setError("Correo o contraseña incorrectos.") }
+    catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code === "auth/too-many-requests") setError("Demasiados intentos fallidos. Espera unos minutos e intenta nuevamente.")
+      else setError("Correo o contraseña incorrectos.")
+    }
     finally { setLoading(false) }
   }
 
   async function handleGoogle() {
     setLoading(true); setError("")
     try { await loginWithGoogle(); navigate("/dashboard", { replace: true }) }
-    catch { setError("Error al iniciar sesión con Google.") }
+    catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") { setLoading(false); return }
+      setError("Error al iniciar sesión con Google.")
+    }
     finally { setLoading(false) }
   }
 
@@ -41,11 +49,9 @@ export default function LoginPage() {
 
       <div style={{ position:"relative", width:"100%", maxWidth:448 }} className="animate-slide-up">
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:56, height:56, background:"var(--color-unit-navy)", borderRadius:16, marginBottom:16, boxShadow:"0 8px 24px rgba(0,33,105,0.3)" }}>
-            <span className="material-symbols-outlined" style={{ color:"white", fontSize:28 }}>shield_with_heart</span>
-          </div>
-          <h1 className="text-headline-md">InsurTech Pro</h1>
-          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>Gestión de requerimientos UNIT</p>
+          <img src="/logo-unit.png" alt="UNIT S.A." style={{ height:72, width:"auto", marginBottom:16, objectFit:"contain" }} />
+          <h1 className="text-headline-md">Hub de Requerimientos</h1>
+          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>UNIT S.A. · Filial de Grupo Universal</p>
         </div>
 
         <div className="glass-card" style={{ padding:32, boxShadow:"0 16px 48px rgba(15,23,42,0.12)" }}>

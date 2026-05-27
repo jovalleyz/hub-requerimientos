@@ -18,14 +18,8 @@ export default function Sidebar() {
       borderRight: "1px solid var(--color-outline-variant)", flexShrink: 0,
       flexDirection: "column", display: "flex"
     }}>
-      <div style={{ display:"flex", alignItems:"center", gap:12, padding:"0 24px", height:64, borderBottom:"1px solid var(--color-outline-variant)" }}>
-        <div style={{ width:32, height:32, borderRadius:8, background:"var(--color-unit-navy)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-          <span className="material-symbols-outlined" style={{ color:"white", fontSize:18 }}>shield_with_heart</span>
-        </div>
-        <div>
-          <p className="text-title-md">InsurTech Pro</p>
-          <p className="text-body-sm" style={{ color:"var(--color-on-surface-variant)" }}>UNIT S.A.</p>
-        </div>
+      <div style={{ display:"flex", alignItems:"center", padding:"0 20px", height:64, borderBottom:"1px solid var(--color-outline-variant)" }}>
+        <img src="/logo-unit.png" alt="UNIT S.A." style={{ height:36, width:"auto", objectFit:"contain" }} />
       </div>
       <div style={{ padding:"12px 16px" }}>
         <NavLink to="/requirements" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"10px 16px", borderRadius:12, background:"var(--color-secondary)", color:"white", textDecoration:"none", fontSize:14, fontWeight:600 }}>
