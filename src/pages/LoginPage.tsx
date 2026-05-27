@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -6,8 +6,8 @@ import { z } from "zod"
 import { useAuth } from "../hooks/useAuth"
 
 const schema = z.object({
-  email:    z.string().email("Correo invalido"),
-  password: z.string().min(6, "Minimo 6 caracteres"),
+  email:    z.string().email("Correo inválido"),
+  password: z.string().min(6, "Mínimo 6 caracteres"),
 })
 type FormData = z.infer<typeof schema>
 
@@ -23,14 +23,14 @@ export default function LoginPage() {
   async function onSubmit(data: FormData) {
     setLoading(true); setError("")
     try { await login(data.email, data.password); navigate("/dashboard", { replace: true }) }
-    catch { setError("Correo o contrasena incorrectos.") }
+    catch { setError("Correo o contraseña incorrectos.") }
     finally { setLoading(false) }
   }
 
   async function handleGoogle() {
     setLoading(true); setError("")
     try { await loginWithGoogle(); navigate("/dashboard", { replace: true }) }
-    catch { setError("Error al iniciar sesion con Google.") }
+    catch { setError("Error al iniciar sesión con Google.") }
     finally { setLoading(false) }
   }
 
@@ -45,11 +45,11 @@ export default function LoginPage() {
             <span className="material-symbols-outlined" style={{ color:"white", fontSize:28 }}>shield_with_heart</span>
           </div>
           <h1 className="text-headline-md">InsurTech Pro</h1>
-          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>Gestion de requerimientos UNIT</p>
+          <p className="text-body-md" style={{ color:"var(--color-on-surface-variant)", marginTop:4 }}>Gestión de requerimientos UNIT</p>
         </div>
 
         <div className="glass-card" style={{ padding:32, boxShadow:"0 16px 48px rgba(15,23,42,0.12)" }}>
-          <h2 className="text-headline-sm" style={{ marginBottom:24 }}>Iniciar sesion</h2>
+          <h2 className="text-headline-sm" style={{ marginBottom:24 }}>Iniciar sesión</h2>
 
           {error && (
             <div style={{ display:"flex", alignItems:"center", gap:8, padding:12, marginBottom:16, background:"var(--color-error-container)", borderRadius:12, fontSize:14, color:"var(--color-error)" }}>
@@ -60,7 +60,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display:"flex", flexDirection:"column", gap:16 }}>
             <div>
-              <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>Correo electronico</label>
+              <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>Correo electrónico</label>
               <div style={{ position:"relative" }}>
                 <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)" }}>mail</span>
                 <input type="email" placeholder="tu@correo.com" {...register("email")}
@@ -71,8 +71,8 @@ export default function LoginPage() {
 
             <div>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
-                <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)" }}>Contrasena</label>
-                <Link to="#" style={{ fontSize:12, color:"var(--color-secondary)", textDecoration:"none" }}>Olvide mi contrasena</Link>
+                <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)" }}>Contraseña</label>
+                <Link to="#" style={{ fontSize:12, color:"var(--color-secondary)", textDecoration:"none" }}>Olvidé mi contraseña</Link>
               </div>
               <div style={{ position:"relative" }}>
                 <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)" }}>lock</span>
@@ -90,7 +90,7 @@ export default function LoginPage() {
               style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"12px 16px", background:"var(--color-secondary)", color:"white", border:"none", borderRadius:12, fontSize:14, fontWeight:600, cursor:"pointer", opacity:loading ? 0.6 : 1, marginTop:8 }}>
               {loading
                 ? <div style={{ width:20, height:20, border:"2px solid white", borderTopColor:"transparent", borderRadius:"50%" }} className="animate-spin" />
-                : <><span className="material-symbols-outlined" style={{ fontSize:18 }}>login</span> Iniciar sesion</>}
+                : <><span className="material-symbols-outlined" style={{ fontSize:18 }}>login</span> Iniciar sesión</>}
             </button>
           </form>
 
@@ -119,13 +119,13 @@ export default function LoginPage() {
           </div>
 
           <p style={{ textAlign:"center", fontSize:14, color:"var(--color-on-surface-variant)", marginTop:24 }}>
-            No tienes cuenta?{" "}
-            <Link to="/register" style={{ color:"var(--color-secondary)", textDecoration:"none", fontWeight:500 }}>Registrate</Link>
+            ¿No tienes cuenta?{" "}
+            <Link to="/register" style={{ color:"var(--color-secondary)", textDecoration:"none", fontWeight:500 }}>Regístrate</Link>
           </p>
         </div>
 
         <div style={{ display:"flex", justifyContent:"center", gap:24, marginTop:24 }}>
-          {["Privacidad","Terminos","Seguridad"].map((t) => (
+          {["Privacidad","Términos","Seguridad"].map((t) => (
             <Link key={t} to="#" style={{ fontSize:12, color:"var(--color-on-surface-variant)", textDecoration:"none" }}>{t}</Link>
           ))}
         </div>

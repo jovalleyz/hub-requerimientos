@@ -51,7 +51,7 @@ export default function Sidebar() {
         <button onClick={async () => { await logout(); navigate("/login", { replace: true }) }}
           style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 12px", width:"100%", border:"none", borderRadius:12, background:"transparent", cursor:"pointer", color:"var(--color-error)", fontSize:14 }}>
           <span className="material-symbols-outlined" style={{ fontSize:22 }}>logout</span>
-          Cerrar sesion
+          Cerrar sesión
         </button>
       </div>
     </aside>

@@ -9,13 +9,13 @@ vi.mock("@/services/firebase", () => ({
 }))
 
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal<typeof import("react-router-dom")>()
   return { ...actual, useNavigate: () => vi.fn(), useParams: () => ({ id: "test-id" }) }
 })
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false, media: query, onchange: null,
     addListener: vi.fn(), removeListener: vi.fn(),
     addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),

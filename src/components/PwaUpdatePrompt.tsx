@@ -1,32 +1,29 @@
-import { useEffect } from "react"
-import { useRegisterSW } from "virtual:pwa-register/react"
+import { useState, useEffect } from "react"
 
 export default function PwaUpdatePrompt() {
-  const { needRefresh: [needRefresh, setNeedRefresh], updateServiceWorker } = useRegisterSW({
-    onRegistered(r) { console.log("[PWA] SW registered:", r) },
-    onRegisterError(e) { console.error("[PWA] SW error:", e) },
-  })
+  const [show, setShow] = useState(false)
 
   useEffect(() => {
-    if (!needRefresh) return
-    const t = setTimeout(() => setNeedRefresh(false), 60_000)
-    return () => clearTimeout(t)
-  }, [needRefresh, setNeedRefresh])
+    if (!("serviceWorker" in navigator)) return
+    const handler = () => setShow(true)
+    navigator.serviceWorker.addEventListener("controllerchange", handler)
+    return () => navigator.serviceWorker.removeEventListener("controllerchange", handler)
+  }, [])
 
-  if (!needRefresh) return null
+  if (!show) return null
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-[var(--color-unit-navy)] text-white rounded-2xl shadow-xl text-body-sm animate-slide-up">
       <span className="material-symbols-outlined text-[20px]">system_update</span>
       <span>Nueva versión disponible</span>
       <button
-        onClick={() => updateServiceWorker(true)}
+        onClick={() => window.location.reload()}
         className="ml-1 px-3 py-1 bg-white text-[var(--color-unit-navy)] rounded-lg text-label-sm font-medium hover:bg-white/90 transition-colors"
       >
         Actualizar
       </button>
       <button
-        onClick={() => setNeedRefresh(false)}
+        onClick={() => setShow(false)}
         className="text-white/60 hover:text-white transition-colors"
         aria-label="Cerrar"
       >

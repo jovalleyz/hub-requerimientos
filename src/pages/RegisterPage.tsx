@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -6,11 +6,11 @@ import { z } from "zod"
 import { useAuth } from "../hooks/useAuth"
 
 const schema = z.object({
-  firstName: z.string().min(2, "Minimo 2 caracteres"),
-  lastName:  z.string().min(2, "Minimo 2 caracteres"),
+  firstName: z.string().min(2, "Mínimo 2 caracteres"),
+  lastName:  z.string().min(2, "Mínimo 2 caracteres"),
   company:   z.string().min(2, "Requerido"),
-  email:     z.string().email("Correo invalido"),
-  password:  z.string().min(6, "Minimo 6 caracteres"),
+  email:     z.string().email("Correo inválido"),
+  password:  z.string().min(6, "Mínimo 6 caracteres"),
 })
 type FormData = z.infer<typeof schema>
 
@@ -62,13 +62,13 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>Apellido</label>
-                <input type="text" placeholder="Perez" {...register("lastName")} style={{ width:"100%", padding:"12px 16px", fontSize:14, background:"rgba(255,255,255,0.6)", border:`1px solid ${errors.lastName ? "var(--color-error)" : "var(--color-outline-variant)"}`, borderRadius:12, outline:"none", boxSizing:"border-box" }} />
+                <input type="text" placeholder="Pérez" {...register("lastName")} style={{ width:"100%", padding:"12px 16px", fontSize:14, background:"rgba(255,255,255,0.6)", border:`1px solid ${errors.lastName ? "var(--color-error)" : "var(--color-outline-variant)"}`, borderRadius:12, outline:"none", boxSizing:"border-box" }} />
                 {errors.lastName && <p style={{ fontSize:12, color:"var(--color-error)", marginTop:4 }}>{errors.lastName.message}</p>}
               </div>
             </div>
             {[
-              { name:"company",  icon:"domain", label:"Empresa",           type:"text",  placeholder:"UNIT S.A." },
-              { name:"email",    icon:"mail",   label:"Correo electronico", type:"email", placeholder:"tu@correo.com" },
+              { name:"company",  icon:"domain", label:"Empresa",              type:"text",  placeholder:"UNIT S.A." },
+              { name:"email",    icon:"mail",   label:"Correo electrónico",   type:"email", placeholder:"tu@correo.com" },
             ].map(({ name, icon, label, type, placeholder }) => (
               <div key={name}>
                 <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>{label}</label>
@@ -79,7 +79,7 @@ export default function RegisterPage() {
               </div>
             ))}
             <div>
-              <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>Contrasena</label>
+              <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)", display:"block", marginBottom:6 }}>Contraseña</label>
               <div style={{ position:"relative" }}>
                 <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)" }}>lock</span>
                 <input type={showPass ? "text" : "password"} placeholder="••••••••" {...register("password")} style={inputStyle(!!errors.password)} />
@@ -96,8 +96,8 @@ export default function RegisterPage() {
             </button>
           </form>
           <p style={{ textAlign:"center", fontSize:14, color:"var(--color-on-surface-variant)", marginTop:24 }}>
-            Ya tienes cuenta?{" "}
-            <Link to="/login" style={{ color:"var(--color-secondary)", textDecoration:"none", fontWeight:500 }}>Inicia sesion</Link>
+            ¿Ya tienes cuenta?{" "}
+            <Link to="/login" style={{ color:"var(--color-secondary)", textDecoration:"none", fontWeight:500 }}>Inicia sesión</Link>
           </p>
         </div>
       </div>

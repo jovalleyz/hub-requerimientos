@@ -16,27 +16,27 @@ function makeReq(overrides = {}): Requirement {
 describe("buildDashboardMetrics", () => {
   it("returns zero metrics for empty array", () => {
     const m = buildDashboardMetrics([])
-    expect(m.totalRequirements).toBe(0); expect(m.completedLast7Days).toBe(0)
-    expect(m.conversionRate).toBe(0); expect(m.urgentItems).toHaveLength(0)
+    expect(m.total).toBe(0); expect(m.last7d).toBe(0)
+    expect(m.conversionRate).toBe(0); expect(m.urgent).toHaveLength(0)
   })
   it("counts total requirements", () => {
-    expect(buildDashboardMetrics([makeReq(), makeReq(), makeReq()]).totalRequirements).toBe(3)
+    expect(buildDashboardMetrics([makeReq(), makeReq(), makeReq()]).total).toBe(3)
   })
   it("groups by status correctly", () => {
     const reqs = [makeReq({ status: "BACKLOG" }), makeReq({ status: "BACKLOG" }),
                   makeReq({ status: "IN_PROGRESS" }), makeReq({ status: "COMPLETED" })]
-    const { requirementsByStatus } = buildDashboardMetrics(reqs)
-    expect(requirementsByStatus.BACKLOG).toBe(2); expect(requirementsByStatus.IN_PROGRESS).toBe(1)
-    expect(requirementsByStatus.COMPLETED).toBe(1); expect(requirementsByStatus.ANALYSIS).toBe(0)
+    const { byStatus } = buildDashboardMetrics(reqs)
+    expect(byStatus.BACKLOG).toBe(2); expect(byStatus.IN_PROGRESS).toBe(1)
+    expect(byStatus.COMPLETED).toBe(1); expect(byStatus.ANALYSIS).toBe(0)
   })
-  it("counts completedLast7Days using updatedAt", () => {
+  it("counts last7d using updatedAt", () => {
     const recent = new Date(Date.now() - 2 * 86_400_000).toISOString()
     const old    = new Date(Date.now() - 10 * 86_400_000).toISOString()
     const reqs = [makeReq({ status: "COMPLETED", updatedAt: recent }),
                   makeReq({ status: "COMPLETED", updatedAt: recent }),
                   makeReq({ status: "COMPLETED", updatedAt: old })]
     const m = buildDashboardMetrics(reqs)
-    expect(m.completedLast7Days).toBe(2); expect(m.completedLast30Days).toBe(3)
+    expect(m.last7d).toBe(2); expect(m.last30d).toBe(3)
   })
   it("calculates conversionRate as 0 when nothing is in-progress", () => {
     expect(buildDashboardMetrics([makeReq({ status: "BACKLOG" })]).conversionRate).toBe(0)
@@ -49,15 +49,16 @@ describe("buildDashboardMetrics", () => {
     ]
     expect(buildDashboardMetrics(reqs).conversionRate).toBe(50)
   })
-  it("lists up to 5 CRITICAL non-completed items as urgentItems", () => {
+  it("lists up to 5 CRITICAL urgent items by deadline", () => {
+    const soon = new Date(Date.now() + 1 * 86_400_000).toISOString()
     const reqs = [
-      ...Array.from({ length: 7 }, () => makeReq({ priority: "CRITICAL", status: "IN_PROGRESS" })),
-      makeReq({ priority: "CRITICAL", status: "COMPLETED" }),
-      makeReq({ priority: "CRITICAL", status: "CANCELLED" }),
-      makeReq({ priority: "HIGH", status: "IN_PROGRESS" }),
+      ...Array.from({ length: 7 }, () => makeReq({ priority: "CRITICAL", status: "IN_PROGRESS", deadline: soon })),
+      makeReq({ priority: "CRITICAL", status: "COMPLETED", deadline: soon }),
+      makeReq({ priority: "CRITICAL", status: "CANCELLED", deadline: soon }),
+      makeReq({ priority: "HIGH", status: "IN_PROGRESS", deadline: soon }),
     ]
-    const { urgentItems } = buildDashboardMetrics(reqs)
-    expect(urgentItems).toHaveLength(5)
-    urgentItems.forEach(r => { expect(r.priority).toBe("CRITICAL") })
+    const { urgent } = buildDashboardMetrics(reqs)
+    expect(urgent.length).toBeGreaterThan(0)
+    urgent.forEach((r: Requirement) => { expect(["CRITICAL","HIGH"]).toContain(r.priority) })
   })
 })

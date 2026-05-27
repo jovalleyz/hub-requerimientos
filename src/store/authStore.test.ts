@@ -4,12 +4,13 @@ import type { User, Tenant } from "@/types"
 
 const mockUser: User = {
   uid: "user-123", email: "test@example.com", displayName: "Test User",
-  photoURL: null, role: "ANALYST", tenantId: "tenant-1", createdAt: new Date().toISOString(),
+  role: "MANAGER", tenantIds: ["tenant-1"], activeTenantId: "tenant-1",
+  createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
 }
 const mockTenant: Tenant = {
-  id: "tenant-1", name: "Seguros Universal", slug: "su", plan: "ENTERPRISE",
-  createdAt: new Date().toISOString(),
-  branding: { primaryColor: "#002169", secondaryColor: "#0058be", logoUrl: null },
+  id: "tenant-1", name: "Seguros Universal", slug: "su", plan: "enterprise",
+  isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  branding: { primaryColor: "#002169", secondaryColor: "#0058be", name: "Seguros Universal" },
 }
 
 describe("authStore", () => {
