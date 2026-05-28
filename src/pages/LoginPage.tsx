@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useAuth } from "../hooks/useAuth"
+import { useAuthStore } from "../store/authStore"
 
 const schema = z.object({
   email:    z.string().email("Correo inválido"),
@@ -12,11 +13,13 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function LoginPage() {
-  const [showPass, setShowPass]   = useState(false)
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState("")
-  const { login, loginWithGoogle } = useAuth()
-  const navigate                   = useNavigate()
+  const [showPass, setShowPass]       = useState(false)
+  const [loading, setLoading]         = useState(false)
+  const [error, setError]             = useState("")
+  const { login, loginWithGoogle, loginWithMicrosoft } = useAuth()
+  const { setActiveTenant }           = useAuthStore()
+  const navigate                       = useNavigate()
+  void setActiveTenant
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
@@ -38,6 +41,17 @@ export default function LoginPage() {
       const code = (err as { code?: string }).code
       if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") { setLoading(false); return }
       setError("Error al iniciar sesión con Google.")
+    }
+    finally { setLoading(false) }
+  }
+
+  async function handleMicrosoft() {
+    setLoading(true); setError("")
+    try { await loginWithMicrosoft(); navigate("/dashboard", { replace: true }) }
+    catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") { setLoading(false); return }
+      setError("Error al iniciar sesión con SSO corporativo.")
     }
     finally { setLoading(false) }
   }
@@ -78,7 +92,7 @@ export default function LoginPage() {
             <div>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
                 <label className="text-label-md" style={{ color:"var(--color-on-surface-variant)" }}>Contraseña</label>
-                <Link to="#" style={{ fontSize:12, color:"var(--color-secondary)", textDecoration:"none" }}>Olvidé mi contraseña</Link>
+                <Link to="/forgot-password" style={{ fontSize:12, color:"var(--color-secondary)", textDecoration:"none" }}>Olvidé mi contraseña</Link>
               </div>
               <div style={{ position:"relative" }}>
                 <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)" }}>lock</span>
@@ -117,9 +131,14 @@ export default function LoginPage() {
               </svg>
               Google
             </button>
-            <button disabled={loading}
+            <button onClick={handleMicrosoft} disabled={loading}
               style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"10px 16px", border:"1px solid var(--color-outline-variant)", borderRadius:12, background:"rgba(255,255,255,0.6)", cursor:"pointer", fontSize:14, opacity:loading ? 0.6 : 1 }}>
-              <span className="material-symbols-outlined" style={{ fontSize:18, color:"var(--color-unit-navy)" }}>corporate_fare</span>
+              <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+                <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              </svg>
               SSO Corp.
             </button>
           </div>

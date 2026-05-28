@@ -91,6 +91,14 @@ service cloud.firestore {
       }
     }
 
+    // Invitations — colección raíz para magic links entre tenants
+    match /_invitations/{inviteId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAdminOrManager();
+      allow update: if isAuthenticated(); // aceptar invitación
+      allow delete: if isAdminOrManager();
+    }
+
     // Notifications — solo el dueño
     match /notifications/{notifId} {
       allow read, update: if isAuthenticated() && request.auth.uid == resource.data.userId;

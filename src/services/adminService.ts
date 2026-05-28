@@ -129,3 +129,38 @@ export async function addAuditEntry(
     createdAt: new Date().toISOString(),
   })
 }
+
+// ─── Invitations ──────────────────────────────────────────────────────────────
+
+import type { Invitation } from "../types/index"
+
+export async function createInvitation(
+  tenantId: string,
+  email: string,
+  role: UserRole,
+  createdBy: string
+): Promise<string> {
+  const now      = new Date()
+  const expires  = new Date(now); expires.setDate(expires.getDate() + 7)
+  const ref2 = await addDoc(collection(db, "_invitations"), {
+    email: email.toLowerCase().trim(),
+    role, tenantId, createdBy,
+    status:    "pending",
+    createdAt: now.toISOString(),
+    expiresAt: expires.toISOString(),
+  })
+  return ref2.id
+}
+
+export async function getPendingInvitations(tenantId: string): Promise<Invitation[]> {
+  const snap = await getDocs(query(
+    collection(db, "_invitations"),
+    where("tenantId", "==", tenantId),
+    where("status",   "==", "pending"),
+  ))
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Invitation))
+}
+
+export async function cancelInvitation(inviteId: string): Promise<void> {
+  await updateDoc(doc(db, "_invitations", inviteId), { status: "expired" })
+}

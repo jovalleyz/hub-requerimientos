@@ -3,6 +3,7 @@ import Sidebar  from "./Sidebar"
 import TopNav   from "./TopNav"
 import BottomNav from "./BottomNav"
 import NotificationDrawer from "@/components/notifications/NotificationDrawer"
+import EmailVerificationBanner from "./EmailVerificationBanner"
 import { useNotifications } from "@/hooks/useNotifications"
 
 // Mount the notification hook at app-shell level so the real-time listener
@@ -17,6 +18,7 @@ export default function AppShell() {
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "var(--color-background)" }}>
       <Sidebar />
       <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, overflow: "hidden" }}>
+        <EmailVerificationBanner />
         <TopNav />
         <main style={{ flex: 1, overflowY: "auto", padding: "24px", paddingBottom: "80px" }}>
           <Outlet />

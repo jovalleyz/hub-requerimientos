@@ -23,7 +23,14 @@ export type TenantPlan = 'enterprise' | 'standard'
 export interface User {
   uid: string; email: string; displayName: string; photoURL?: string
   role: UserRole; tenantIds: string[]; activeTenantId: string
+  jobTitle?: string; onboardingComplete?: boolean
   createdAt: string; updatedAt: string
+}
+
+export interface Invitation {
+  id: string; email: string; role: UserRole; tenantId: string
+  status: 'pending' | 'accepted' | 'expired'
+  createdBy: string; createdAt: string; expiresAt: string
 }
 
 export interface TenantBranding {

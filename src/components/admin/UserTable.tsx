@@ -2,6 +2,7 @@
 import type { User, UserRole } from "@/types"
 import { useTenantUsers, useUpdateUserRole } from "@/hooks/useAdmin"
 import { useAuthStore } from "@/store/authStore"
+import InviteModal from "./InviteModal"
 
 const ROLES: { value: UserRole; label: string; color: string; desc: string }[] = [
   { value: "ADMIN",   label: "Admin",   color: "#ba1a1a", desc: "Control total" },
@@ -67,7 +68,8 @@ export default function UserTable() {
   const { data: users = [], isLoading } = useTenantUsers()
   const changeRole = useUpdateUserRole()
   const { user: me } = useAuthStore()
-  const [search, setSearch] = useState("")
+  const [search, setSearch]       = useState("")
+  const [showInvite, setShowInvite] = useState(false)
 
   const filtered = users.filter(u =>
     !search || u.displayName.toLowerCase().includes(search.toLowerCase()) ||
@@ -76,7 +78,9 @@ export default function UserTable() {
 
   return (
     <div>
-      {/* Search */}
+      {showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
+
+      {/* Search + Invite */}
       <div className="flex items-center justify-between mb-5">
         <div className="relative">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--color-outline)]">search</span>
@@ -88,9 +92,18 @@ export default function UserTable() {
             className="pl-9 pr-4 py-2 rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface)] text-body-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors w-60"
           />
         </div>
-        <p className="text-label-sm text-[var(--color-on-surface-variant)]">
-          {users.length} usuario{users.length !== 1 ? "s" : ""}
-        </p>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <p className="text-label-sm text-[var(--color-on-surface-variant)]">
+            {users.length} usuario{users.length !== 1 ? "s" : ""}
+          </p>
+          {(me?.role === "ADMIN" || me?.role === "MANAGER") && (
+            <button onClick={() => setShowInvite(true)}
+              style={{ display:"flex", alignItems:"center", gap:6, padding:"6px 14px", background:"var(--color-secondary)", color:"white", border:"none", borderRadius:10, fontSize:13, fontWeight:600, cursor:"pointer" }}>
+              <span className="material-symbols-outlined" style={{ fontSize:16 }}>person_add</span>
+              Invitar
+            </button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (

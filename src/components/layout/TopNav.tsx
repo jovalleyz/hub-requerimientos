@@ -1,15 +1,33 @@
-﻿import { useUiStore } from "../../store/uiStore"
+﻿import { useRef, useCallback } from "react"
+import { useUiStore } from "../../store/uiStore"
 import { useAuthStore } from "../../store/authStore"
+import SearchResults from "./SearchResults"
 
 export default function TopNav() {
-  const { unreadCount, toggleNotifications } = useUiStore()
-  const { user, activeTenant }               = useAuthStore()
+  const { unreadCount, toggleNotifications, searchQuery, searchOpen, setSearchQuery, setSearchOpen } = useUiStore()
+  const { user, activeTenant } = useAuthStore()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchQuery(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setSearchOpen(value.length >= 2), 300)
+  }, [setSearchQuery, setSearchOpen])
+
   return (
     <header style={{ display:"flex", alignItems:"center", gap:12, padding:"0 24px", height:64, background:"var(--color-surface)", borderBottom:"1px solid var(--color-outline-variant)", flexShrink:0, position:"sticky", top:0, zIndex:40 }}>
       <div style={{ flex:1, maxWidth:400 }}>
         <div style={{ position:"relative" }}>
-          <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)" }}>search</span>
-          <input type="search" placeholder="Buscar requerimientos..." style={{ width:"100%", paddingLeft:42, paddingRight:16, paddingTop:8, paddingBottom:8, fontSize:14, background:"var(--color-surface-container-low)", border:"1px solid var(--color-outline-variant)", borderRadius:12, outline:"none" }} />
+          <span className="material-symbols-outlined" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", fontSize:20, color:"var(--color-on-surface-variant)", zIndex:1 }}>search</span>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={e => handleSearch(e.target.value)}
+            onFocus={() => searchQuery.length >= 2 && setSearchOpen(true)}
+            placeholder="Buscar requerimientos..."
+            style={{ width:"100%", paddingLeft:42, paddingRight:16, paddingTop:8, paddingBottom:8, fontSize:14, background:"var(--color-surface-container-low)", border:"1px solid var(--color-outline-variant)", borderRadius:12, outline:"none" }}
+          />
+          {searchOpen && <SearchResults />}
         </div>
       </div>
       <div style={{ display:"flex", alignItems:"center", gap:8, marginLeft:"auto" }}>
