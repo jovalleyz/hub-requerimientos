@@ -2,6 +2,7 @@
 import KanbanBoard from "@/components/requirements/KanbanBoard"
 import CreateRequirementModal from "@/components/requirements/CreateRequirementModal"
 import { useRequirements } from "@/hooks/useRequirements"
+import { useUiStore } from "@/store/uiStore"
 import type { RequirementStatus } from "@/types"
 
 const PRIORITY_CHIPS = [
@@ -23,7 +24,7 @@ const PRODUCT_CHIPS = [
 ]
 
 export default function PipelinePage() {
-  const [search,     setSearch]     = useState("")
+  const { searchQuery } = useUiStore()
   const [priority,   setPriority]   = useState("")
   const [product,    setProduct]    = useState("")
   const [tagFilter,  setTagFilter]  = useState("")
@@ -52,29 +53,8 @@ export default function PipelinePage() {
         </button>
       </div>
 
-      {/* Search */}
+      {/* Filters */}
       <div className="flex flex-col gap-3 mb-5">
-        <div className="relative max-w-sm">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[var(--color-outline)]">
-            search
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar por título o código…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface)] text-body-md text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-outline)] hover:text-[var(--color-on-surface)]"
-            >
-              <span className="material-symbols-outlined text-[18px]">close</span>
-            </button>
-          )}
-        </div>
-
         {/* Priority chips */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-label-sm text-[var(--color-on-surface-variant)] mr-1">Prioridad:</span>
@@ -144,7 +124,7 @@ export default function PipelinePage() {
 
       {/* Board */}
       <div className="flex-1 overflow-x-auto -mx-4 px-4">
-        <KanbanBoard search={search} priorityFilter={priority} productFilter={product} tagFilter={tagFilter} />
+        <KanbanBoard search={searchQuery} priorityFilter={priority} productFilter={product} tagFilter={tagFilter} />
       </div>
 
       {/* FAB — mobile */}

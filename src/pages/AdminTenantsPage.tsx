@@ -1,10 +1,11 @@
 ﻿import { useState } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { useAdminTenant } from "@/hooks/useAdmin"
-import TenantInfoForm from "@/components/admin/TenantInfoForm"
-import BrandingEditor from "@/components/admin/BrandingEditor"
-import UserTable      from "@/components/admin/UserTable"
-import AuditLogPanel  from "@/components/admin/AuditLogPanel"
+import TenantInfoForm          from "@/components/admin/TenantInfoForm"
+import BrandingEditor          from "@/components/admin/BrandingEditor"
+import UserTable               from "@/components/admin/UserTable"
+import AuditLogPanel           from "@/components/admin/AuditLogPanel"
+import CreateFirstTenantForm   from "@/components/admin/CreateFirstTenantForm"
 
 type Tab = "tenant" | "branding" | "users" | "audit"
 
@@ -20,14 +21,9 @@ export default function AdminTenantsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("tenant")
   const { data: tenant, isLoading } = useAdminTenant()
 
-  // Guard: must be ADMIN or MANAGER
+  // Bootstrap: user has no tenant yet — let them create their first org
   if (!activeTenant) {
-    return (
-      <div className="animate-fade-in flex flex-col items-center justify-center h-64 gap-3 text-[var(--color-on-surface-variant)]">
-        <span className="material-symbols-outlined text-[48px] opacity-30">domain</span>
-        <p className="text-body-md">Selecciona un tenant para acceder al panel</p>
-      </div>
-    )
+    return <CreateFirstTenantForm />
   }
 
   if (user?.role === "VIEWER" || user?.role === "DEV") {

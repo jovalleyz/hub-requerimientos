@@ -28,10 +28,14 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantIds.hasAny(resource.data.tenantIds)
       );
       allow create: if request.auth.uid == userId;
-      // Self-update is allowed BUT must not change the role field —
-      // role changes are ADMIN-only to prevent privilege escalation.
+      // Self-update allowed without role change.
+      // Exception: a user with NO tenants yet may set their own role to ADMIN (bootstrap of first org).
+      // Role changes in any other case require ADMIN.
       allow update: if (request.auth.uid == userId && !("role" in request.resource.data.diff(resource.data).affectedKeys()))
-                    || hasRole('ADMIN');
+                    || hasRole('ADMIN')
+                    || (request.auth.uid == userId
+                        && resource.data.tenantIds.size() == 0
+                        && request.resource.data.role == 'ADMIN');
       allow delete: if hasRole('ADMIN');
 
       // Notifications subcollection (path: /users/{userId}/notifications/{notifId})
@@ -45,7 +49,12 @@ service cloud.firestore {
     // Tenants
     match /tenants/{tenantId} {
       allow read:   if isTenantMember(tenantId);
-      allow write:  if hasRole('ADMIN');
+      // ADMIN can do anything; users with no tenant yet can create their first org (bootstrap).
+      allow create: if isAuthenticated() && (
+        hasRole('ADMIN') ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantIds.size() == 0
+      );
+      allow update, delete: if hasRole('ADMIN');
 
       // Requirements dentro del tenant
       match /requirements/{reqId} {
