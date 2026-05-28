@@ -38,8 +38,19 @@ export default function AdminTenantsPage() {
 
   return (
     <div className="animate-fade-in max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      {/* Page header */}
+      <div className="mb-6">
+        <h1 className="text-headline-md" style={{ color: "var(--color-on-surface)" }}>Configuración</h1>
+        <p className="text-body-sm mt-0.5" style={{ color: "var(--color-on-surface-variant)" }}>
+          Gestiona tu organización, branding y usuarios
+        </p>
+      </div>
+
+      {/* Org header card */}
+      <div
+        className="flex items-center gap-4 mb-5 p-4 rounded-2xl"
+        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
+      >
         <div
           className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
           style={{ background: activeTenant.branding.primaryColor || "var(--color-primary)" }}
@@ -50,11 +61,13 @@ export default function AdminTenantsPage() {
             <span className="material-symbols-outlined text-white text-[24px]">shield_with_heart</span>
           )}
         </div>
-        <div>
-          <h1 className="text-headline-md text-[var(--color-on-surface)]">{activeTenant.name}</h1>
+        <div className="flex-1">
+          <h2 className="text-headline-sm font-semibold" style={{ color: "var(--color-on-surface)" }}>
+            {activeTenant.name}
+          </h2>
           <div className="flex items-center gap-2 mt-0.5">
             <span
-              className="text-label-sm px-2 py-0.5 rounded-full font-semibold capitalize"
+              className="text-body-sm px-2 py-0.5 rounded-full font-semibold"
               style={{
                 background: activeTenant.isActive ? "#dcfce7" : "#ffdad6",
                 color:      activeTenant.isActive ? "#1a7f1a" : "#ba1a1a",
@@ -62,7 +75,7 @@ export default function AdminTenantsPage() {
             >
               {activeTenant.isActive ? "Activo" : "Inactivo"}
             </span>
-            <span className="text-label-sm text-[var(--color-on-surface-variant)] capitalize">
+            <span className="text-body-sm capitalize" style={{ color: "var(--color-on-surface-variant)" }}>
               Plan {activeTenant.plan}
             </span>
           </div>
@@ -70,15 +83,19 @@ export default function AdminTenantsPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 mb-6 border-b border-[var(--color-outline-variant)] overflow-x-auto">
+      <div
+        className="flex gap-1 mb-5 overflow-x-auto rounded-2xl p-1"
+        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
+      >
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="flex items-center gap-1.5 px-4 py-3 text-label-md font-medium whitespace-nowrap transition-all border-b-2 -mb-px"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-body-sm font-medium whitespace-nowrap transition-all flex-1 justify-center"
             style={{
-              color:       activeTab === tab.id ? "var(--color-primary)"  : "var(--color-on-surface-variant)",
-              borderColor: activeTab === tab.id ? "var(--color-primary)"  : "transparent",
+              background:  activeTab === tab.id ? "var(--color-surface)"   : "transparent",
+              color:       activeTab === tab.id ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+              boxShadow:   activeTab === tab.id ? "0 1px 3px rgba(0,0,0,.1)" : "none",
             }}
           >
             <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>

@@ -54,17 +54,20 @@ export default function PipelinePage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 mb-5">
+      <div
+        className="flex flex-col gap-3 mb-5 px-4 py-3 rounded-2xl"
+        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
+      >
         {/* Priority chips */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-label-sm text-[var(--color-on-surface-variant)] mr-1">Prioridad:</span>
+          <span className="text-label-sm font-medium mr-1" style={{ color: "var(--color-on-surface-variant)" }}>Prioridad:</span>
           {PRIORITY_CHIPS.map(chip => (
             <button
               key={chip.value}
               onClick={() => setPriority(chip.value)}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background:   priority === chip.value ? "var(--color-primary)" : "transparent",
+                background:   priority === chip.value ? "var(--color-primary)" : "var(--color-surface)",
                 color:        priority === chip.value ? "#fff" : "var(--color-on-surface-variant)",
                 borderColor:  priority === chip.value ? "var(--color-primary)" : "var(--color-outline-variant)",
               }}
@@ -76,14 +79,14 @@ export default function PipelinePage() {
 
         {/* Product chips */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-label-sm text-[var(--color-on-surface-variant)] mr-1">Línea:</span>
+          <span className="text-label-sm font-medium mr-1" style={{ color: "var(--color-on-surface-variant)" }}>Línea:</span>
           {PRODUCT_CHIPS.map(chip => (
             <button
               key={chip.value}
               onClick={() => setProduct(chip.value)}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background:  product === chip.value ? "var(--color-secondary)" : "transparent",
+                background:  product === chip.value ? "var(--color-secondary)" : "var(--color-surface)",
                 color:       product === chip.value ? "#fff" : "var(--color-on-surface-variant)",
                 borderColor: product === chip.value ? "var(--color-secondary)" : "var(--color-outline-variant)",
               }}
@@ -96,14 +99,14 @@ export default function PipelinePage() {
         {/* Tag chips */}
         {allTags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-label-sm text-[var(--color-on-surface-variant)] mr-1">Etiqueta:</span>
+            <span className="text-label-sm font-medium mr-1" style={{ color: "var(--color-on-surface-variant)" }}>Etiqueta:</span>
             <button
               onClick={() => setTagFilter("")}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background: tagFilter === "" ? "var(--color-tertiary, #7C3AED)" : "transparent",
+                background: tagFilter === "" ? "#7C3AED" : "var(--color-surface)",
                 color: tagFilter === "" ? "#fff" : "var(--color-on-surface-variant)",
-                borderColor: tagFilter === "" ? "var(--color-tertiary, #7C3AED)" : "var(--color-outline-variant)",
+                borderColor: tagFilter === "" ? "#7C3AED" : "var(--color-outline-variant)",
               }}
             >Todas</button>
             {allTags.map(tag => (
@@ -112,7 +115,7 @@ export default function PipelinePage() {
                 onClick={() => setTagFilter(tagFilter === tag ? "" : tag)}
                 className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
                 style={{
-                  background: tagFilter === tag ? "#7C3AED" : "transparent",
+                  background: tagFilter === tag ? "#7C3AED" : "var(--color-surface)",
                   color: tagFilter === tag ? "#fff" : "var(--color-on-surface-variant)",
                   borderColor: tagFilter === tag ? "#7C3AED" : "var(--color-outline-variant)",
                 }}

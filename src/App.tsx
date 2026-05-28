@@ -12,6 +12,7 @@ import PipelinePage from './pages/PipelinePage'
 import RequirementDetailPage from './pages/RequirementDetailPage'
 import ProjectsPage from './pages/ProjectsPage'
 import AdminTenantsPage from './pages/AdminTenantsPage'
+import ProfilePage from './pages/ProfilePage'
 
 const Spinner = () => (
   <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:'#f8f9ff' }}>
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="requirements/:id" element={<RequirementDetailPage />} />
         <Route path="projects"         element={<ProjectsPage />} />
         <Route path="admin/tenants"    element={<AdminTenantsPage />} />
+        <Route path="profile"          element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

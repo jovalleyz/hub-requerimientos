@@ -91,16 +91,28 @@ export default function ProjectsPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div
+        className="flex flex-wrap items-center gap-3 mb-5 px-4 py-3 rounded-2xl"
+        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
+      >
         {/* Search */}
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--color-outline)]">search</span>
+          <span
+            className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px]"
+            style={{ color: "var(--color-on-surface-variant)" }}
+          >
+            search
+          </span>
           <input
             type="text"
             placeholder="Buscar proyecto…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2 rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface)] text-body-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors w-52"
+            className="pl-9 pr-4 py-2 rounded-full text-body-sm focus:outline-none transition-colors w-48"
+            style={{
+              border: "1px solid var(--color-outline-variant)",
+              background: "var(--color-surface)",
+            }}
           />
         </div>
 
@@ -112,7 +124,7 @@ export default function ProjectsPage() {
               onClick={() => setStatus(f.value as Project["status"] | "all")}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background:  statusFilter === f.value ? "var(--color-primary)" : "transparent",
+                background:  statusFilter === f.value ? "var(--color-primary)" : "var(--color-surface)",
                 color:       statusFilter === f.value ? "#fff" : "var(--color-on-surface-variant)",
                 borderColor: statusFilter === f.value ? "var(--color-primary)" : "var(--color-outline-variant)",
               }}
@@ -123,16 +135,19 @@ export default function ProjectsPage() {
         </div>
 
         {/* View toggle */}
-        <div className="ml-auto flex items-center gap-1 p-1 rounded-full bg-[var(--color-surface-container)]">
+        <div
+          className="ml-auto flex items-center gap-1 p-1 rounded-full"
+          style={{ background: "var(--color-surface-container)" }}
+        >
           {(["list", "gantt"] as ViewTab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setViewTab(tab)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-label-sm font-medium transition-all"
               style={{
-                background: viewTab === tab ? "white"                          : "transparent",
-                color:      viewTab === tab ? "var(--color-primary)"           : "var(--color-on-surface-variant)",
-                boxShadow:  viewTab === tab ? "0 1px 3px rgba(0,0,0,.12)"     : "none",
+                background: viewTab === tab ? "white"                        : "transparent",
+                color:      viewTab === tab ? "var(--color-secondary)"       : "var(--color-on-surface-variant)",
+                boxShadow:  viewTab === tab ? "0 1px 3px rgba(0,0,0,.12)"   : "none",
               }}
             >
               <span className="material-symbols-outlined text-[16px]">

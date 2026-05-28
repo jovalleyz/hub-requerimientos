@@ -1,4 +1,5 @@
 ﻿import { useRef, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import { useUiStore } from "../../store/uiStore"
 import { useAuthStore } from "../../store/authStore"
 import SearchResults from "./SearchResults"
@@ -6,6 +7,7 @@ import SearchResults from "./SearchResults"
 export default function TopNav() {
   const { unreadCount, toggleNotifications, searchQuery, searchOpen, setSearchQuery, setSearchOpen } = useUiStore()
   const { user, activeTenant } = useAuthStore()
+  const navigate = useNavigate()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleSearch = useCallback((value: string) => {
@@ -42,14 +44,22 @@ export default function TopNav() {
             </span>
           )}
         </button>
-        <div style={{ display:"flex", alignItems:"center", gap:8, padding:4 }}>
-          <div style={{ width:32, height:32, borderRadius:"50%", background:"var(--color-secondary)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:14, fontWeight:600 }}>
+        <button
+          onClick={() => navigate("/profile")}
+          style={{ display:"flex", alignItems:"center", gap:8, padding:"4px 8px", borderRadius:12, border:"none", background:"transparent", cursor:"pointer", transition:"background 0.15s" }}
+          onMouseEnter={e => (e.currentTarget.style.background = "var(--color-surface-container-low)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+        >
+          <div style={{ width:32, height:32, borderRadius:"50%", background:"var(--color-secondary)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:14, fontWeight:600, flexShrink:0 }}>
             {user?.displayName?.charAt(0).toUpperCase() ?? "U"}
           </div>
           <span style={{ fontSize:14, color:"var(--color-on-surface)", maxWidth:100, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
             {user?.displayName ?? "Usuario"}
           </span>
-        </div>
+          <span className="material-symbols-outlined" style={{ fontSize:16, color:"var(--color-on-surface-variant)" }}>
+            expand_more
+          </span>
+        </button>
       </div>
     </header>
   )

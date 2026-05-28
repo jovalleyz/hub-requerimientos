@@ -6,6 +6,7 @@ const navItems = [
   { to: "/requirements",  icon: "view_kanban",          label: "Pipeline" },
   { to: "/projects",      icon: "account_tree",         label: "Proyectos" },
   { to: "/admin/tenants", icon: "admin_panel_settings", label: "Admin" },
+  { to: "/profile",       icon: "person",               label: "Mi perfil" },
 ]
 
 export default function Sidebar() {
@@ -13,10 +14,10 @@ export default function Sidebar() {
   const navigate   = useNavigate()
 
   return (
-    <aside style={{
+    <aside className="hidden lg:flex" style={{
       width: 280, height: "100vh", background: "var(--color-surface)",
       borderRight: "1px solid var(--color-outline-variant)", flexShrink: 0,
-      flexDirection: "column", display: "flex"
+      flexDirection: "column",
     }}>
       <div style={{ display:"flex", alignItems:"center", padding:"0 20px", height:64, borderBottom:"1px solid var(--color-outline-variant)" }}>
         <img src="/logo-unit.png" alt="UNIT S.A." style={{ height:36, width:"auto", objectFit:"contain" }} />

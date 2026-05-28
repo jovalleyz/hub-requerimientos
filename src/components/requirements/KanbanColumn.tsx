@@ -23,20 +23,29 @@ export default function KanbanColumn({ status, requirements, onCardClick }: Kanb
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
-    <div className="flex flex-col min-w-[300px] w-[300px] shrink-0">
+    <div
+      className="flex flex-col min-w-[300px] w-[300px] shrink-0 rounded-2xl"
+      style={{
+        background: "var(--color-surface-container-low)",
+        border: "1px solid rgba(198,198,205,0.35)",
+      }}
+    >
       {/* Column header */}
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <span className="material-symbols-outlined text-[18px]" style={{ color: meta.color }}>
-          {meta.icon}
-        </span>
-        <span className="text-label-lg text-[var(--color-on-surface)] font-semibold">
+      <div className="flex items-center gap-2 px-4 pt-4 pb-3">
+        <span
+          style={{
+            width: 10, height: 10, borderRadius: "50%",
+            background: meta.color, flexShrink: 0, display: "inline-block",
+          }}
+        />
+        <span className="text-headline-sm font-semibold" style={{ color: "var(--color-on-surface)" }}>
           {meta.label}
         </span>
         <span
           className="ml-auto text-label-sm px-2 py-0.5 rounded-full font-medium"
           style={{
-            background: `color-mix(in srgb, ${meta.color} 15%, transparent)`,
-            color: meta.color,
+            background: "var(--color-surface-container-high)",
+            color: "var(--color-on-surface-variant)",
           }}
         >
           {requirements.length}
@@ -46,10 +55,10 @@ export default function KanbanColumn({ status, requirements, onCardClick }: Kanb
       {/* Drop zone */}
       <div
         ref={setNodeRef}
-        className="flex flex-col gap-3 flex-1 min-h-[120px] rounded-2xl p-2 transition-colors"
+        className="flex flex-col gap-3 flex-1 min-h-[120px] px-4 pb-4 transition-colors rounded-b-2xl"
         style={{
           background: isOver ? `color-mix(in srgb, ${meta.color} 8%, transparent)` : "transparent",
-          outline: isOver ? `2px dashed ${meta.color}` : "2px dashed transparent",
+          outline: isOver ? `2px dashed ${meta.color}` : "none",
         }}
       >
         <SortableContext
@@ -63,10 +72,15 @@ export default function KanbanColumn({ status, requirements, onCardClick }: Kanb
 
         {requirements.length === 0 && !isOver && (
           <div className="flex flex-col items-center justify-center h-24 opacity-30 select-none">
-            <span className="material-symbols-outlined text-[28px] text-[var(--color-outline)]">
+            <span
+              className="material-symbols-outlined text-[28px]"
+              style={{ color: "var(--color-on-surface-variant)" }}
+            >
               add_circle
             </span>
-            <p className="text-body-sm text-[var(--color-on-surface-variant)] mt-1">Arrastra aquí</p>
+            <p className="text-body-sm mt-1" style={{ color: "var(--color-on-surface-variant)" }}>
+              Arrastra aquí
+            </p>
           </div>
         )}
       </div>
