@@ -20,7 +20,7 @@ export default function AppShell() {
       <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, overflow: "hidden" }}>
         <EmailVerificationBanner />
         <TopNav />
-        <main className="pb-20 lg:pb-6" style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
+        <main className="p-6 pb-24 lg:pb-6" style={{ flex: 1, overflowY: "auto" }}>
           <Outlet />
         </main>
       </div>

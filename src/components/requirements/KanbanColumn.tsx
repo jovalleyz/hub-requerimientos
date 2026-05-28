@@ -26,8 +26,9 @@ export default function KanbanColumn({ status, requirements, onCardClick }: Kanb
     <div
       className="flex flex-col min-w-[300px] w-[300px] shrink-0 rounded-2xl"
       style={{
-        background: "var(--color-surface-container-low)",
-        border: "1px solid rgba(198,198,205,0.35)",
+        background: "#ffffff",
+        border: "1px solid var(--color-outline-variant)",
+        boxShadow: "0 1px 4px rgba(11,28,48,0.06)",
       }}
     >
       {/* Column header */}

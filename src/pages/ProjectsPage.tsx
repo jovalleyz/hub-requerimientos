@@ -91,10 +91,7 @@ export default function ProjectsPage() {
       </div>
 
       {/* Toolbar */}
-      <div
-        className="flex flex-wrap items-center gap-3 mb-5 px-4 py-3 rounded-2xl"
-        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
-      >
+      <div className="filter-bar flex flex-wrap items-center gap-3 mb-5 px-4 py-3">
         {/* Search */}
         <div className="relative">
           <span
@@ -187,11 +184,33 @@ export default function ProjectsPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-3 text-[var(--color-on-surface-variant)]">
-          <span className="material-symbols-outlined text-[48px] opacity-30">folder_open</span>
-          <p className="text-body-md">
-            {projects.length === 0 ? "Sin proyectos aún — crea el primero" : "Sin resultados para ese filtro"}
-          </p>
+        <div className="tonal-card flex flex-col items-center justify-center h-64 gap-4">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{ background: "var(--color-surface-container-high)" }}
+          >
+            <span className="material-symbols-outlined text-[28px]" style={{ color: "var(--color-primary)" }}>folder_open</span>
+          </div>
+          <div className="text-center">
+            <p className="text-title-md font-medium" style={{ color: "var(--color-on-surface)" }}>
+              {projects.length === 0 ? "Sin proyectos aún" : "Sin resultados"}
+            </p>
+            <p className="text-body-sm mt-1" style={{ color: "var(--color-on-surface-variant)" }}>
+              {projects.length === 0
+                ? "Crea tu primer proyecto para empezar a organizar el trabajo"
+                : "Ajusta los filtros para ver más proyectos"}
+            </p>
+          </div>
+          {projects.length === 0 && (
+            <button
+              onClick={() => { setEditTarget(undefined); setModalOpen(true) }}
+              className="flex items-center gap-2 px-5 py-2 rounded-full text-white text-label-lg font-medium transition-all active:scale-95"
+              style={{ background: "var(--color-primary)" }}
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Crear proyecto
+            </button>
+          )}
         </div>
       ) : viewTab === "list" ? (
         <div className="flex gap-4 items-start">

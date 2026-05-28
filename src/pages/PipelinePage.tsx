@@ -54,10 +54,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Filters */}
-      <div
-        className="flex flex-col gap-3 mb-5 px-4 py-3 rounded-2xl"
-        style={{ background: "var(--color-surface-container-low)", border: "1px solid var(--color-outline-variant)" }}
-      >
+      <div className="filter-bar flex flex-col gap-3 mb-5 px-4 py-3">
         {/* Priority chips */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-label-sm font-medium mr-1" style={{ color: "var(--color-on-surface-variant)" }}>Prioridad:</span>
@@ -67,7 +64,7 @@ export default function PipelinePage() {
               onClick={() => setPriority(chip.value)}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background:   priority === chip.value ? "var(--color-primary)" : "var(--color-surface)",
+                background:   priority === chip.value ? "var(--color-primary)" : "var(--color-surface-container-low)",
                 color:        priority === chip.value ? "#fff" : "var(--color-on-surface-variant)",
                 borderColor:  priority === chip.value ? "var(--color-primary)" : "var(--color-outline-variant)",
               }}
@@ -86,7 +83,7 @@ export default function PipelinePage() {
               onClick={() => setProduct(chip.value)}
               className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
               style={{
-                background:  product === chip.value ? "var(--color-secondary)" : "var(--color-surface)",
+                background:  product === chip.value ? "var(--color-secondary)" : "var(--color-surface-container-low)",
                 color:       product === chip.value ? "#fff" : "var(--color-on-surface-variant)",
                 borderColor: product === chip.value ? "var(--color-secondary)" : "var(--color-outline-variant)",
               }}
