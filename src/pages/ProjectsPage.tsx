@@ -3,9 +3,10 @@ import { ViewMode } from "gantt-task-react"
 import type { Project } from "@/types"
 import { useProjects, useDeleteProject } from "@/hooks/useProjects"
 import { useAuthStore } from "@/store/authStore"
-import ProjectCard        from "@/components/projects/ProjectCard"
-import CreateProjectModal from "@/components/projects/CreateProjectModal"
-import ProjectGantt       from "@/components/projects/ProjectGantt"
+import ProjectCard             from "@/components/projects/ProjectCard"
+import CreateProjectModal      from "@/components/projects/CreateProjectModal"
+import ProjectGantt            from "@/components/projects/ProjectGantt"
+import ProjectDocumentPanel    from "@/components/projects/ProjectDocumentPanel"
 
 type ViewTab = "list" | "gantt"
 
@@ -178,17 +179,33 @@ export default function ProjectsPage() {
           </p>
         </div>
       ) : viewTab === "list" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map(p => (
-            <ProjectCard
-              key={p.id}
-              project={p}
-              selected={selected === p.id}
-              onSelect={pr => setSelected(pr.id === selected ? null : pr.id)}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className="flex gap-4 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+            {filtered.map(p => (
+              <ProjectCard
+                key={p.id}
+                project={p}
+                selected={selected === p.id}
+                onSelect={pr => setSelected(pr.id === selected ? null : pr.id)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+          {selected && (
+            <div className="w-80 shrink-0 tonal-card p-5 animate-slide-up sticky top-20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-[var(--color-secondary)]">attach_file</span>
+                  <h3 className="text-label-lg font-semibold text-[var(--color-on-surface)]">Documentos</h3>
+                </div>
+                <button onClick={() => setSelected(null)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[var(--color-surface-container)] transition-colors">
+                  <span className="material-symbols-outlined text-[16px] text-[var(--color-on-surface-variant)]">close</span>
+                </button>
+              </div>
+              <ProjectDocumentPanel projectId={selected} />
+            </div>
+          )}
         </div>
       ) : (
         <div className="tonal-card p-6">

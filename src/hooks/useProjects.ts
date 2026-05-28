@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/authStore"
 import {
   getProjects, createProject, updateProject, deleteProject,
 } from "@/services/projectsService"
+import { createNotification } from "@/services/notificationsService"
 import type { Project } from "@/types"
 
 export function useProjects() {
@@ -29,11 +30,29 @@ export function useCreateProject() {
 
 export function useUpdateProject() {
   const qc = useQueryClient()
-  const { activeTenant } = useAuthStore()
+  const { activeTenant, user } = useAuthStore()
   const tenantId = activeTenant?.id ?? ""
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Omit<Project, "id" | "tenantId" | "createdAt" | "createdBy">> }) =>
-      updateProject(tenantId, id, data),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Omit<Project, "id" | "tenantId" | "createdAt" | "createdBy">> }) => {
+      // Detect newly assigned phase members and notify them
+      if (user && data.phases) {
+        const cached = qc.getQueryData<Project[]>(["projects", tenantId])
+        const prev = cached?.find(p => p.id === id)
+        if (prev) {
+          for (const phase of data.phases) {
+            const prevPhase = prev.phases.find(ph => ph.id === phase.id)
+            const prevAssigned = prevPhase?.assignedTo ?? []
+            const added = (phase.assignedTo ?? []).filter(uid => !prevAssigned.includes(uid))
+            for (const uid of added) {
+              await createNotification(uid, "phase_assignment",
+                "Fuiste asignado a una fase de proyecto",
+                `${user.displayName} te asignó a la fase "${phase.name}" en el proyecto "${prev.name}"`)
+            }
+          }
+        }
+      }
+      await updateProject(tenantId, id, data)
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["projects", tenantId] }),
   })
 }

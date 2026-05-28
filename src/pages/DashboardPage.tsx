@@ -1,9 +1,11 @@
 ﻿import { useState } from "react"
 import { useAuthStore } from "../store/authStore"
 import { useDashboard }  from "../hooks/useDashboard"
-import MetricCard   from "../components/dashboard/MetricCard"
-import FunnelChart  from "../components/dashboard/FunnelChart"
-import ActivityFeed from "../components/dashboard/ActivityFeed"
+import MetricCard       from "../components/dashboard/MetricCard"
+import FunnelChart      from "../components/dashboard/FunnelChart"
+import ActivityFeed     from "../components/dashboard/ActivityFeed"
+import WorkloadReport   from "../components/dashboard/WorkloadReport"
+import { exportCSV, exportExcel, exportPDF } from "../services/reportService"
 
 function SkeletonCard() {
   return (
@@ -27,9 +29,21 @@ export default function DashboardPage() {
   const { data, isLoading, isError } = useDashboard()
   const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d")
 
-  const metrics = data?.metrics
-  const hour    = new Date().getHours()
+  const metrics  = data?.metrics
+  const reqs     = data?.reqs ?? []
+  const hour     = new Date().getHours()
   const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches"
+  const [exporting, setExporting] = useState(false)
+
+  async function handleExport(fmt: "csv" | "xlsx" | "pdf") {
+    if (!activeTenant) return
+    setExporting(true)
+    try {
+      if (fmt === "csv")  exportCSV(reqs, activeTenant.name)
+      if (fmt === "xlsx") await exportExcel(reqs, activeTenant.name)
+      if (fmt === "pdf")  await exportPDF(reqs, activeTenant.name)
+    } finally { setExporting(false) }
+  }
 
   if (!activeTenant) {
     return (
@@ -180,6 +194,57 @@ export default function DashboardPage() {
             <p className="text-body-sm" style={{ color: "var(--color-on-surface-variant)", marginTop: 4 }}>{k.desc}</p>
           </div>
         ))}
+      </div>
+
+      {/* Workload + Export */}
+      <div id="bottom-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
+        <style>{`@media(max-width:768px){#bottom-grid{grid-template-columns:1fr!important}}`}</style>
+
+        {/* Workload by user */}
+        <div className="tonal-card" style={{ padding: 24 }}>
+          <h2 className="text-headline-sm" style={{ marginBottom: 4 }}>Carga por usuario</h2>
+          <p className="text-body-sm" style={{ color: "var(--color-on-surface-variant)", marginBottom: 20 }}>
+            Requerimientos asignados y progreso
+          </p>
+          {isLoading
+            ? <div style={{ height: 180, background: "var(--color-surface-container)", borderRadius: 12, animation: "pulse 1.5s ease infinite" }} />
+            : <WorkloadReport requirements={reqs} />
+          }
+        </div>
+
+        {/* Export */}
+        <div className="tonal-card" style={{ padding: 24 }}>
+          <h2 className="text-headline-sm" style={{ marginBottom: 4 }}>Exportar reporte</h2>
+          <p className="text-body-sm" style={{ color: "var(--color-on-surface-variant)", marginBottom: 20 }}>
+            Descarga el portafolio completo con logo UNIT
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[
+              { fmt: "csv"  as const, icon: "table_rows",   label: "CSV",        desc: "Hoja de cálculo genérica"      },
+              { fmt: "xlsx" as const, icon: "table_chart",  label: "Excel",      desc: "Microsoft Excel (.xlsx)"       },
+              { fmt: "pdf"  as const, icon: "picture_as_pdf", label: "PDF",      desc: "Informe con logo UNIT"         },
+            ].map(item => (
+              <button
+                key={item.fmt}
+                onClick={() => void handleExport(item.fmt)}
+                disabled={isLoading || exporting}
+                style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+                  borderRadius: 14, border: "1px solid var(--color-outline-variant)",
+                  background: "var(--color-surface-container-low)", cursor: "pointer",
+                  opacity: (isLoading || exporting) ? 0.5 : 1, textAlign: "left", width: "100%",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 24, color: "var(--color-secondary)" }}>{item.icon}</span>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-on-surface)" }}>{item.label}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-on-surface-variant)" }}>{item.desc}</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ marginLeft: "auto", fontSize: 18, color: "var(--color-outline)" }}>download</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {isError && (

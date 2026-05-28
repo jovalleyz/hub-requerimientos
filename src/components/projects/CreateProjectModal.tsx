@@ -1,16 +1,18 @@
-﻿import { useEffect } from "react"
+﻿import { useEffect, useState } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import type { Project, ProjectPhase } from "@/types"
 import { useCreateProject, useUpdateProject } from "@/hooks/useProjects"
+import { useTenantMembers } from "@/hooks/useTenantMembers"
 import { buildEmptyPhase } from "@/services/projectsService"
 
 interface FormPhase {
-  id:        string
-  name:      string
-  startDate: string
-  endDate:   string
-  status:    ProjectPhase["status"]
-  progress:  number
+  id:         string
+  name:       string
+  startDate:  string
+  endDate:    string
+  status:     ProjectPhase["status"]
+  progress:   number
+  assignedTo: string[]
 }
 
 interface FormValues {
@@ -45,12 +47,13 @@ function toDefaults(p?: Project): FormValues {
     status:      p?.status      ?? "active",
     totalBudget: p?.totalBudget != null ? String(p.totalBudget) : "",
     phases: (p?.phases ?? [buildEmptyPhase()]).map(ph => ({
-      id:        ph.id,
-      name:      ph.name,
-      startDate: ph.startDate,
-      endDate:   ph.endDate,
-      status:    ph.status,
-      progress:  ph.progress,
+      id:         ph.id,
+      name:       ph.name,
+      startDate:  ph.startDate,
+      endDate:    ph.endDate,
+      status:     ph.status,
+      progress:   ph.progress,
+      assignedTo: ph.assignedTo ?? [],
     })),
   }
 }
@@ -62,9 +65,11 @@ interface Props {
 }
 
 export default function CreateProjectModal({ open, onClose, editProject }: Props) {
-  const create  = useCreateProject()
-  const update  = useUpdateProject()
-  const isEdit  = !!editProject
+  const create   = useCreateProject()
+  const update   = useUpdateProject()
+  const isEdit   = !!editProject
+  const { data: members = [] } = useTenantMembers()
+  const [phaseAssignees, setPhaseAssignees] = useState<Record<number, string[]>>({})
 
   const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } =
     useForm<FormValues>({ defaultValues: toDefaults(editProject) })
@@ -72,7 +77,13 @@ export default function CreateProjectModal({ open, onClose, editProject }: Props
   const { fields, append, remove } = useFieldArray({ control, name: "phases" })
 
   useEffect(() => {
-    if (open) reset(toDefaults(editProject))
+    if (open) {
+      const def = toDefaults(editProject)
+      reset(def)
+      const init: Record<number, string[]> = {}
+      def.phases.forEach((ph, i) => { init[i] = ph.assignedTo })
+      setPhaseAssignees(init)
+    }
   }, [open, editProject, reset])
 
   useEffect(() => {
@@ -90,13 +101,14 @@ export default function CreateProjectModal({ open, onClose, editProject }: Props
       description: values.description.trim(),
       status:      values.status,
       totalBudget: values.totalBudget ? Number(values.totalBudget) : undefined,
-      phases: values.phases.map(ph => ({
-        id:        ph.id,
-        name:      ph.name.trim(),
-        startDate: ph.startDate,
-        endDate:   ph.endDate,
-        status:    ph.status,
-        progress:  Number(ph.progress),
+      phases: values.phases.map((ph, i) => ({
+        id:         ph.id,
+        name:       ph.name.trim(),
+        startDate:  ph.startDate,
+        endDate:    ph.endDate,
+        status:     ph.status,
+        progress:   Number(ph.progress),
+        assignedTo: phaseAssignees[i] ?? [],
       })),
     }
     if (isEdit && editProject) {
@@ -224,6 +236,50 @@ export default function CreateProjectModal({ open, onClose, editProject }: Props
                       />
                     </div>
                   </div>
+
+                  {/* Assignees */}
+                  {members.length > 0 && (
+                    <div>
+                      <label className={labelCls}>Responsables</label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {members.map(m => {
+                          const assigned = (phaseAssignees[idx] ?? []).includes(m.uid)
+                          return (
+                            <button
+                              key={m.uid}
+                              type="button"
+                              onClick={() => {
+                                const cur = phaseAssignees[idx] ?? []
+                                setPhaseAssignees(prev => ({
+                                  ...prev,
+                                  [idx]: assigned ? cur.filter(id => id !== m.uid) : [...cur, m.uid],
+                                }))
+                              }}
+                              style={{
+                                display: "flex", alignItems: "center", gap: 6,
+                                padding: "3px 10px 3px 6px", borderRadius: 999,
+                                border: `1px solid ${assigned ? "var(--color-primary)" : "var(--color-outline-variant)"}`,
+                                background: assigned ? "var(--color-primary)" : "transparent",
+                                cursor: "pointer", fontSize: 12,
+                                color: assigned ? "white" : "var(--color-on-surface-variant)",
+                              }}
+                            >
+                              <div style={{
+                                width: 20, height: 20, borderRadius: "50%",
+                                background: assigned ? "white" : "var(--color-surface-container)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 9, fontWeight: 700,
+                                color: assigned ? "var(--color-primary)" : "var(--color-on-surface-variant)",
+                              }}>
+                                {m.displayName.charAt(0).toUpperCase()}
+                              </div>
+                              {m.displayName.split(" ")[0]}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

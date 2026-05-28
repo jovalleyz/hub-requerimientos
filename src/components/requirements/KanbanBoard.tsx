@@ -29,9 +29,10 @@ interface KanbanBoardProps {
   search: string
   priorityFilter: string
   productFilter: string
+  tagFilter?: string
 }
 
-export default function KanbanBoard({ search, priorityFilter, productFilter }: KanbanBoardProps) {
+export default function KanbanBoard({ search, priorityFilter, productFilter, tagFilter = "" }: KanbanBoardProps) {
   const navigate = useNavigate()
   const { data: requirements = [], isLoading, isError } = useRequirements()
   const updateStatus = useUpdateRequirementStatus()
@@ -54,9 +55,10 @@ export default function KanbanBoard({ search, priorityFilter, productFilter }: K
       ) return false
       if (priorityFilter && r.priority !== priorityFilter) return false
       if (productFilter && r.productLine !== productFilter) return false
+      if (tagFilter && !r.tags?.includes(tagFilter)) return false
       return true
     })
-  }, [requirements, search, priorityFilter, productFilter])
+  }, [requirements, search, priorityFilter, productFilter, tagFilter])
 
   // Group by status, respecting local drag order
   const columns = useMemo(() => {

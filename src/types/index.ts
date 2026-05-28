@@ -50,6 +50,7 @@ export interface Requirement {
   linkedProjectId?: string; createdBy: string; createdAt: string; updatedAt: string
   taskCount?: number; completedTaskCount?: number
   assigneeNames?: string[]
+  tags?: string[]
 }
 
 export interface RequirementTask {
@@ -75,11 +76,13 @@ export interface Project {
   status: 'active' | 'completed' | 'on_hold' | 'cancelled'
   phases: ProjectPhase[]; totalBudget?: number; totalSpend?: number
   linkedRequirementId?: string; createdBy: string; createdAt: string; updatedAt: string
+  tags?: string[]
 }
 
 export interface ProjectPhase {
   id: string; name: string; startDate: string; endDate: string
   status: 'pending' | 'active' | 'completed'; progress: number
+  assignedTo?: string[]
 }
 
 export interface DashboardMetrics {

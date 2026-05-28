@@ -1,8 +1,9 @@
-﻿import { useEffect } from "react"
+﻿import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { RequirementStatus, RequirementPriority, ProductLine } from "@/types"
-import { useCreateRequirement } from "@/hooks/useRequirements"
+import { useCreateRequirement, useRequirements } from "@/hooks/useRequirements"
 import { useUpdateRequirement } from "@/hooks/useRequirementDetail"
+import TagInput from "@/components/common/TagInput"
 import type { Requirement } from "@/types"
 
 // ─── Form shape ───────────────────────────────────────────────────────────────
@@ -78,9 +79,13 @@ function toDefaults(r?: Requirement, ds?: RequirementStatus): FormValues {
 export default function CreateRequirementModal({
   open, onClose, defaultStatus, editRequirement,
 }: Props) {
-  const create = useCreateRequirement()
-  const update = useUpdateRequirement(editRequirement?.id ?? "")
-  const isEdit = !!editRequirement
+  const create  = useCreateRequirement()
+  const update  = useUpdateRequirement(editRequirement?.id ?? "")
+  const { data: allReqs = [] } = useRequirements()
+  const isEdit  = !!editRequirement
+  const [tags, setTags] = useState<string[]>(editRequirement?.tags ?? [])
+
+  const allTags = [...new Set(allReqs.flatMap(r => r.tags ?? []))]
 
   const {
     register, handleSubmit, reset,
@@ -88,7 +93,10 @@ export default function CreateRequirementModal({
   } = useForm<FormValues>({ defaultValues: toDefaults(editRequirement, defaultStatus) })
 
   useEffect(() => {
-    if (open) reset(toDefaults(editRequirement, defaultStatus))
+    if (open) {
+      reset(toDefaults(editRequirement, defaultStatus))
+      setTags(editRequirement?.tags ?? [])
+    }
   }, [open, editRequirement, defaultStatus, reset])
 
   useEffect(() => {
@@ -111,6 +119,7 @@ export default function CreateRequirementModal({
       deadline:      values.deadline ? new Date(values.deadline).toISOString() : undefined,
       estimatedCost: values.estimatedCost ? Number(values.estimatedCost) : undefined,
       assignedTo:    editRequirement?.assignedTo ?? [],
+      tags,
     }
 
     if (isEdit) {
@@ -244,6 +253,13 @@ export default function CreateRequirementModal({
                 className={fieldCls}
               />
             </div>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className={labelCls}>Etiquetas</label>
+            <TagInput value={tags} onChange={setTags} suggestions={allTags} placeholder="Ej: backend, urgente, v2…" />
+            <p className="text-label-sm text-[var(--color-on-surface-variant)] mt-1">Enter o coma para agregar, Backspace para eliminar</p>
           </div>
 
           {/* Actions */}

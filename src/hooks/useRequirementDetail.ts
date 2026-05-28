@@ -4,10 +4,16 @@ import {
   getRequirement, updateRequirement,
   getTasks, addTask, toggleTask, deleteTask,
   getNotes, addNote,
-  getActivity,
+  getActivity, addActivityEntry,
   getDocuments, uploadDocument, deleteDocument,
 } from "@/services/requirementDetailService"
+import { createNotification } from "@/services/notificationsService"
 import type { Requirement } from "@/types"
+
+const STATUS_LABELS: Record<string, string> = {
+  BACKLOG: "Backlog", ANALYSIS: "Análisis", IN_PROGRESS: "En progreso",
+  REVIEW: "Revisión", COMPLETED: "Completado", CANCELLED: "Cancelado",
+}
 
 // ─── Requirement ──────────────────────────────────────────────────────────────
 
@@ -24,14 +30,45 @@ export function useRequirement(reqId: string) {
 
 export function useUpdateRequirement(reqId: string) {
   const qc = useQueryClient()
-  const { activeTenant } = useAuthStore()
+  const { activeTenant, user } = useAuthStore()
   const tenantId = activeTenant?.id ?? ""
   return useMutation({
-    mutationFn: (data: Partial<Omit<Requirement, "id" | "tenantId" | "createdAt" | "createdBy">>) =>
-      updateRequirement(tenantId, reqId, data),
+    mutationFn: async (data: Partial<Omit<Requirement, "id" | "tenantId" | "createdAt" | "createdBy">>) => {
+      const cached = qc.getQueryData<Requirement>(["requirement", tenantId, reqId])
+      await updateRequirement(tenantId, reqId, data)
+
+      if (!user) return
+      // Log status change
+      if (data.status && cached && data.status !== cached.status) {
+        await addActivityEntry(tenantId, reqId, {
+          action: `Estado: ${STATUS_LABELS[cached.status] ?? cached.status} → ${STATUS_LABELS[data.status] ?? data.status}`,
+          actorId: user.uid,
+          actorName: user.displayName,
+          metadata: { from: cached.status, to: data.status },
+        })
+      }
+      // Log + notify newly added collaborators
+      if (data.assignedTo && cached?.assignedTo) {
+        const added = data.assignedTo.filter(id => !cached.assignedTo.includes(id))
+        if (added.length > 0) {
+          await addActivityEntry(tenantId, reqId, {
+            action: `${added.length} colaborador(es) asignado(s)`,
+            actorId: user.uid,
+            actorName: user.displayName,
+            metadata: { added },
+          })
+          for (const uid of added) {
+            await createNotification(uid, "assignment",
+              "Fuiste asignado a un requerimiento",
+              `${user.displayName} te asignó al requerimiento: ${cached.title}`)
+          }
+        }
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["requirement", tenantId, reqId] })
       qc.invalidateQueries({ queryKey: ["requirements", tenantId] })
+      qc.invalidateQueries({ queryKey: ["activity", tenantId, reqId] })
       qc.invalidateQueries({ queryKey: ["dashboard", tenantId] })
     },
   })

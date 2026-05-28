@@ -1,6 +1,7 @@
 ﻿import { useState } from "react"
 import KanbanBoard from "@/components/requirements/KanbanBoard"
 import CreateRequirementModal from "@/components/requirements/CreateRequirementModal"
+import { useRequirements } from "@/hooks/useRequirements"
 import type { RequirementStatus } from "@/types"
 
 const PRIORITY_CHIPS = [
@@ -25,8 +26,11 @@ export default function PipelinePage() {
   const [search,     setSearch]     = useState("")
   const [priority,   setPriority]   = useState("")
   const [product,    setProduct]    = useState("")
+  const [tagFilter,  setTagFilter]  = useState("")
   const [modalOpen,  setModalOpen]  = useState(false)
   const [defaultStatus] = useState<RequirementStatus>("BACKLOG")
+  const { data: allReqs = [] } = useRequirements()
+  const allTags = [...new Set(allReqs.flatMap(r => r.tags ?? []))]
 
   return (
     <div className="animate-fade-in flex flex-col h-full">
@@ -108,11 +112,39 @@ export default function PipelinePage() {
             </button>
           ))}
         </div>
+
+        {/* Tag chips */}
+        {allTags.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-label-sm text-[var(--color-on-surface-variant)] mr-1">Etiqueta:</span>
+            <button
+              onClick={() => setTagFilter("")}
+              className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
+              style={{
+                background: tagFilter === "" ? "var(--color-tertiary, #7C3AED)" : "transparent",
+                color: tagFilter === "" ? "#fff" : "var(--color-on-surface-variant)",
+                borderColor: tagFilter === "" ? "var(--color-tertiary, #7C3AED)" : "var(--color-outline-variant)",
+              }}
+            >Todas</button>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setTagFilter(tagFilter === tag ? "" : tag)}
+                className="px-3 py-1 rounded-full text-label-sm font-medium border transition-all"
+                style={{
+                  background: tagFilter === tag ? "#7C3AED" : "transparent",
+                  color: tagFilter === tag ? "#fff" : "var(--color-on-surface-variant)",
+                  borderColor: tagFilter === tag ? "#7C3AED" : "var(--color-outline-variant)",
+                }}
+              >#{tag}</button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Board */}
       <div className="flex-1 overflow-x-auto -mx-4 px-4">
-        <KanbanBoard search={search} priorityFilter={priority} productFilter={product} />
+        <KanbanBoard search={search} priorityFilter={priority} productFilter={product} tagFilter={tagFilter} />
       </div>
 
       {/* FAB — mobile */}

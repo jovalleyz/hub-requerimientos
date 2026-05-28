@@ -81,6 +81,12 @@ service cloud.firestore {
         allow create: if isTenantMember(tenantId) && isAdminOrManager();
         allow update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
         allow delete: if isTenantMember(tenantId) && hasRole('ADMIN');
+
+        match /documents/{docId} {
+          allow read:          if isTenantMember(tenantId);
+          allow create, update: if isTenantMember(tenantId) && (isAdminOrManager() || hasRole('DEV'));
+          allow delete:        if isTenantMember(tenantId) && isAdminOrManager();
+        }
       }
 
       // Audit log — append-only for tenant members, read for admin/manager

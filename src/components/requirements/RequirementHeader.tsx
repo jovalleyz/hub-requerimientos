@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom"
 import type { Requirement, RequirementStatus, RequirementPriority, ProductLine } from "@/types"
 import { useUpdateRequirement } from "@/hooks/useRequirementDetail"
+import { useTenantMembers } from "@/hooks/useTenantMembers"
 import CreateRequirementModal from "@/components/requirements/CreateRequirementModal"
 
 const STATUS_META: Record<RequirementStatus, { label: string; color: string; bg: string; icon: string }> = {
@@ -27,11 +28,56 @@ const PRODUCT_LABELS: Record<ProductLine, string> = {
 
 const STATUS_ORDER: RequirementStatus[] = ["BACKLOG", "ANALYSIS", "IN_PROGRESS", "REVIEW", "COMPLETED", "CANCELLED"]
 
+const AVATAR_COLORS = ["#0058be","#7C3AED","#D97706","#1a7f1a","#ba1a1a","#0891b2","#be185d"]
+
+function Avatars({ uids, members }: { uids: string[]; members: { uid: string; displayName: string; photoURL?: string }[] }) {
+  if (uids.length === 0) return null
+  const show = uids.slice(0, 5)
+  const rest  = uids.length - show.length
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {show.map((uid, i) => {
+        const m = members.find(u => u.uid === uid)
+        const initials = m ? m.displayName.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase() : "?"
+        const color = AVATAR_COLORS[i % AVATAR_COLORS.length]
+        return (
+          <div
+            key={uid}
+            title={m?.displayName ?? uid}
+            style={{
+              width: 28, height: 28, borderRadius: "50%", border: "2px solid var(--color-surface)",
+              marginLeft: i > 0 ? -8 : 0, position: "relative", zIndex: show.length - i,
+              background: m?.photoURL ? "transparent" : color,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              overflow: "hidden", flexShrink: 0,
+            }}
+          >
+            {m?.photoURL
+              ? <img src={m.photoURL} alt={m.displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              : <span style={{ fontSize: 10, fontWeight: 700, color: "white" }}>{initials}</span>
+            }
+          </div>
+        )
+      })}
+      {rest > 0 && (
+        <div style={{
+          width: 28, height: 28, borderRadius: "50%", border: "2px solid var(--color-surface)",
+          marginLeft: -8, background: "var(--color-surface-container-high)",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 9, fontWeight: 700, color: "var(--color-on-surface-variant)" }}>+{rest}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface Props { requirement: Requirement }
 
 export default function RequirementHeader({ requirement: r }: Props) {
   const navigate     = useNavigate()
   const update       = useUpdateRequirement(r.id)
+  const { data: members = [] } = useTenantMembers()
   const [statusOpen, setStatusOpen] = useState(false)
   const [editOpen,   setEditOpen]   = useState(false)
 
@@ -147,9 +193,9 @@ export default function RequirementHeader({ requirement: r }: Props) {
           </div>
         )}
         {r.assignedTo.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm text-[var(--color-on-surface-variant)] border border-[var(--color-outline-variant)]">
-            <span className="material-symbols-outlined text-[14px]">group</span>
-            {r.assignedTo.length} asignado{r.assignedTo.length !== 1 ? "s" : ""}
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full text-label-sm text-[var(--color-on-surface-variant)] border border-[var(--color-outline-variant)]">
+            <Avatars uids={r.assignedTo} members={members} />
+            <span>{r.assignedTo.length} asignado{r.assignedTo.length !== 1 ? "s" : ""}</span>
           </div>
         )}
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm text-[var(--color-on-surface-variant)] border border-[var(--color-outline-variant)]">
